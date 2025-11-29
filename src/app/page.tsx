@@ -9,6 +9,7 @@ import {
   ActionType,
   CameraPath,
   CinemaProperties,
+  Keyframe,
   ACTION_TYPE_LABELS,
   createDefaultCinema,
   createDefaultShot,
@@ -72,6 +73,7 @@ export default function CutsceneEditor() {
   const [showExport, setShowExport] = useState(false);
   const [showCinemaProps, setShowCinemaProps] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [draggedActionId, setDraggedActionId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Current cinema shorthand
@@ -188,6 +190,26 @@ export default function CutsceneEditor() {
       ...prev,
       actions: prev.actions.filter(a => a.id !== id).map((a, i) => ({ ...a, index: i }))
     }));
+  };
+
+  const reorderActions = (sourceId: string, targetId: string) => {
+    if (sourceId === targetId) return;
+
+    setCinema(prev => {
+      const actions = [...prev.actions];
+      const fromIndex = actions.findIndex(a => a.id === sourceId);
+      const toIndex = actions.findIndex(a => a.id === targetId);
+
+      if (fromIndex === -1 || toIndex === -1) {
+        return prev;
+      }
+
+      const [moved] = actions.splice(fromIndex, 1);
+      actions.splice(toIndex, 0, moved);
+
+      const reindexed = actions.map((a, i) => ({ ...a, index: i }));
+      return { ...prev, actions: reindexed };
+    });
   };
 
   // Participant handlers
@@ -609,18 +631,39 @@ export default function CutsceneEditor() {
               </div>
               <div className="divide-y divide-gray-800">
                 {cinema.actions.map(action => (
-                  <ActionItem
+                  <div
                     key={action.id}
-                    action={action}
-                    shots={cinema.shots}
-                    syncPoints={cinema.syncPoints}
-                    isExpanded={expandedItems.has(action.id)}
-                    expandedItems={expandedItems}
-                    onToggle={() => toggleExpanded(action.id)}
-                    onToggleAdvanced={(id: string) => toggleExpanded(id)}
-                    onUpdate={(field, value) => updateAction(action.id, field, value)}
-                    onDelete={() => deleteAction(action.id)}
-                  />
+                    draggable
+                    onDragStart={e => {
+                      setDraggedActionId(action.id);
+                      e.dataTransfer.effectAllowed = 'move';
+                    }}
+                    onDragOver={e => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                    }}
+                    onDrop={e => {
+                      e.preventDefault();
+                      if (draggedActionId) {
+                        reorderActions(draggedActionId, action.id);
+                      }
+                      setDraggedActionId(null);
+                    }}
+                    onDragEnd={() => setDraggedActionId(null)}
+                    className={draggedActionId === action.id ? 'bg-gray-800/70' : ''}
+                  >
+                    <ActionItem
+                      action={action}
+                      shots={cinema.shots}
+                      syncPoints={cinema.syncPoints}
+                      isExpanded={expandedItems.has(action.id)}
+                      expandedItems={expandedItems}
+                      onToggle={() => toggleExpanded(action.id)}
+                      onToggleAdvanced={(id: string) => toggleExpanded(id)}
+                      onUpdate={(field, value) => updateAction(action.id, field, value)}
+                      onDelete={() => deleteAction(action.id)}
+                    />
+                  </div>
                 ))}
               </div>
             </section>
