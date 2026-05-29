@@ -33,6 +33,8 @@ import {
   genOrbit,
   genFigure8,
   genBezier,
+  genCatmullRom,
+  genPolyline,
   buildKeyframes,
 } from '@/utils/quantize';
 import { 
@@ -1589,6 +1591,9 @@ function KeyframeEditor({
   const [orbitRadius, setOrbitRadius] = useState(100);
   const [orbitPlane, setOrbitPlane] = useState<'XZ' | 'XY' | 'YZ'>('XZ');
 
+  // How the waypoints below are connected into a path.
+  const [curveType, setCurveType] = useState<'smooth' | 'bezier' | 'linear'>('smooth');
+
   // Control points in free world coordinates (seeded from current bounds when available).
   const [controlPoints, setControlPoints] = useState<Vec3[]>(() => {
     const hasBox = range[0] || range[1] || range[2];
@@ -1622,10 +1627,16 @@ function KeyframeEditor({
     onUpdatePath({ keyframes: newKeyframes, min: m, range: r, bBox });
   };
 
-  // Generate keyframes from Bezier control points (free world space).
+  // Generate keyframes from the waypoints (free world space) using the
+  // selected curve type: a smooth interpolating spline through every point,
+  // a bezier that is pulled toward the interior points, or straight segments.
   const generateFromControlPoints = () => {
     if (controlPoints.length < 2) return;
-    commitFromWorld(genBezier(controlPoints, curvePoints));
+    const worldPoints =
+      curveType === 'smooth' ? genCatmullRom(controlPoints, curvePoints)
+        : curveType === 'linear' ? genPolyline(controlPoints, curvePoints)
+          : genBezier(controlPoints, curvePoints);
+    commitFromWorld(worldPoints);
   };
 
   const addControlPoint = () => {
@@ -1857,7 +1868,7 @@ function KeyframeEditor({
           </div>
         </div>
         
-        {/* Bezier Control Points */}
+        {/* Waypoints -> path through multiple points */}
         <div className="border-t border-gray-700 pt-3 mt-3">
           <div className="flex items-center justify-between mb-2">
             <button
@@ -1865,15 +1876,27 @@ function KeyframeEditor({
               className="text-xs text-gray-300 hover:text-white flex items-center gap-1"
             >
               {showControlPoints ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-              Bezier Control Points ({controlPoints.length})
-              <FieldHelp text="Define control points in free world coordinates. Min/Range/BBox are auto-computed from the generated curve points; control points are NOT clamped to a pre-existing box." />
+              Waypoints ({controlPoints.length})
+              <FieldHelp text="Define any number of waypoints in free world coordinates, then pick how to connect them. Min/Range/BBox are auto-computed from the generated curve; waypoints are NOT clamped to a pre-existing box." />
             </button>
-            <button
-              onClick={generateFromControlPoints}
-              className="px-3 py-1.5 text-xs bg-green-600 hover:bg-green-500 rounded transition"
-            >
-              Generate Bezier
-            </button>
+            <div className="flex items-center gap-2">
+              <select
+                value={curveType}
+                onChange={e => setCurveType(e.target.value as 'smooth' | 'bezier' | 'linear')}
+                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500"
+              >
+                <option value="smooth">Smooth (through all points)</option>
+                <option value="bezier">Bezier (pull toward points)</option>
+                <option value="linear">Straight segments</option>
+              </select>
+              <FieldHelp text="Smooth = Catmull-Rom spline that flows THROUGH every waypoint (best for a flythrough). Bezier = passes only through the first and last; interior points bend the curve. Straight segments = direct lines between waypoints." />
+              <button
+                onClick={generateFromControlPoints}
+                className="px-3 py-1.5 text-xs bg-green-600 hover:bg-green-500 rounded transition"
+              >
+                Generate Path
+              </button>
+            </div>
           </div>
           
           {showControlPoints && (

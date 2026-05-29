@@ -192,6 +192,9 @@ export function genFigure8(center: Vec3, size: number, n: number, heightSpan = 0
 }
 
 // Bezier (de Casteljau) through control points in WORLD space, n samples inclusive.
+// NOTE: a Bezier passes through ONLY the first and last control points; the
+// interior points just "pull" the curve. For a curve that flows through every
+// point, use genCatmullRom (interpolating spline) instead.
 export function genBezier(control: Vec3[], n: number): Vec3[] {
   if (control.length < 2) return control.slice();
   const N = Math.max(2, n);
@@ -203,6 +206,67 @@ export function genBezier(control: Vec3[], n: number): Vec3[] {
   };
   const out: Vec3[] = [];
   for (let i = 0; i < N; i++) out.push(de(i / (N - 1), control));
+  return out;
+}
+
+// Piecewise-linear path through ALL waypoints (straight segments), n samples.
+export function genPolyline(points: Vec3[], n: number): Vec3[] {
+  if (points.length < 2) return points.slice();
+  const N = Math.max(2, n);
+  const segCount = points.length - 1;
+  const per = Math.max(1, Math.round((N - 1) / segCount));
+  const out: Vec3[] = [];
+  for (let s = 0; s < segCount; s++) {
+    for (let j = 0; j < per; j++) out.push(lerp(points[s], points[s + 1], j / per));
+  }
+  out.push(points[points.length - 1]); // exact final waypoint
+  return out;
+}
+
+// Centripetal Catmull-Rom spline through ALL points (smooth + interpolating:
+// the curve passes exactly through every waypoint, unlike a Bezier).
+// alpha: 0 = uniform, 0.5 = centripetal (default; no cusps/self-loops),
+// 1 = chordal. Endpoints use reflected phantom points for natural tangents.
+export function genCatmullRom(points: Vec3[], n: number, alpha = 0.5): Vec3[] {
+  if (points.length < 2) return points.slice();
+  if (points.length === 2) return genLine(points[0], points[1], n);
+  const N = Math.max(2, n);
+
+  const first = points[0], second = points[1];
+  const last = points[points.length - 1], penult = points[points.length - 2];
+  const pre: Vec3 = { x: 2 * first.x - second.x, y: 2 * first.y - second.y, z: 2 * first.z - second.z };
+  const post: Vec3 = { x: 2 * last.x - penult.x, y: 2 * last.y - penult.y, z: 2 * last.z - penult.z };
+  const pts = [pre, ...points, post];
+
+  // knot spacing: clamp each step away from 0 so coincident points cannot divide by zero.
+  const tNext = (a: Vec3, b: Vec3) =>
+    Math.max(1e-6, Math.pow(Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z), alpha));
+
+  const lp = (a: Vec3, b: Vec3, ta: number, tb: number, t: number): Vec3 => {
+    const f1 = (tb - t) / (tb - ta), f2 = (t - ta) / (tb - ta);
+    return { x: f1 * a.x + f2 * b.x, y: f1 * a.y + f2 * b.y, z: f1 * a.z + f2 * b.z };
+  };
+  const point = (p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3, t0: number, t1: number, t2: number, t3: number, t: number): Vec3 => {
+    const A1 = lp(p0, p1, t0, t1, t), A2 = lp(p1, p2, t1, t2, t), A3 = lp(p2, p3, t2, t3, t);
+    const B1 = lp(A1, A2, t0, t2, t), B2 = lp(A2, A3, t1, t3, t);
+    return lp(B1, B2, t1, t2, t);
+  };
+
+  const segCount = points.length - 1;
+  const per = Math.max(2, Math.round((N - 1) / segCount));
+  const out: Vec3[] = [];
+  for (let s = 0; s < segCount; s++) {
+    const p0 = pts[s], p1 = pts[s + 1], p2 = pts[s + 2], p3 = pts[s + 3];
+    const t0 = 0;
+    const t1 = t0 + tNext(p0, p1);
+    const t2 = t1 + tNext(p1, p2);
+    const t3 = t2 + tNext(p2, p3);
+    for (let j = 0; j < per; j++) {
+      const t = t1 + (t2 - t1) * (j / per); // j/per: includes seg start (a waypoint), excludes its end
+      out.push(point(p0, p1, p2, p3, t0, t1, t2, t3, t));
+    }
+  }
+  out.push(last); // exact final waypoint
   return out;
 }
 
