@@ -1,0 +1,245 @@
+[ Cinema : 1 ]
+ { GUID:s              DoesCameraColl:d DoesCameraFade:d LightChannels:d ObjectFlags:d ScriptResource:s InitialPos:fff             Orientation:fff            LocalBoundingBox:ffffff                                  ObjSaveFlag:d ObjName:s                  Repeatable:d PopAtEnd:d Cinematic:d Time:f   Duration:f nShots:d nSyncPoints:d nActions:d nParticipants:d InitialShot:d BilboInvisible:d HasIntroTrans:d HasOutroTrans:d Skippable:d IsDeathCinema:d ForceNoWeapon:d ForceUseStick:d ForceUseSting:d Letterbox:d DisableControl:d BypassQueue:d LowPriority:d SubtitleInBox:d }
+   "CA3DDD8F_11110022" 1                1                1               432           ""               0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 -1.000000 -1.000000 -1.000000 1.000000 1.000000 1.000000 1             "New Cinema"               1            0          1           0.000000 9.000000   2        2             6          2               0             0                0               0               1           0               0               0               0               1           0                0             0             0              
+[ Shot0 : 1 ]
+ { Shot0\Name:s Shot0\NextShot:d Shot0\SkipShot:d Shot0\MaxTime:f Shot0\Time:f }
+   "Shot 0"     1                1                10.000000      0.000000    
+[ Shot1 : 1 ]
+ { Shot1\Name:s Shot1\NextShot:d Shot1\SkipShot:d Shot1\MaxTime:f Shot1\Time:f }
+   "Shot 1"     2                2                10.000000      0.000000    
+
+[ SyncPoint0 : 1 ]
+ { SyncPoint0\Name:s SyncPoint0\Type:d SyncPoint0\Action:d SyncPoint0\Offset:f SyncPoint0\Shot:d SyncPoint0\FromEnd:d SyncPoint0\AbsoluteTimeStart:f }
+   "Shot 0, Sync 0"  0                 0                   0.000000            0                 1                    0.000000               
+[ SyncPoint1 : 1 ]
+ { SyncPoint1\Name:s SyncPoint1\Type:d SyncPoint1\Action:d SyncPoint1\Offset:f SyncPoint1\Shot:d SyncPoint1\FromEnd:d SyncPoint1\AbsoluteTimeStart:f }
+   "Shot 1, Sync 1"  1                 1                   0.000000            1                 1                    5.000000               
+
+
+[ Action0 : 1 ]
+ { Action0\Name:s Action0\Type:d Action0\Shot:d Action0\Offset:f Action0\Duration:f Action0\SyncPoint:d Action0\FinishShot:d Action0\DefaultLength:f Action0\CameraType:d Action0\Target:g  Action0\Relative:d Action0\StartOrient:fff    Action0\EndOrient:fff      Action0\StartOffset:fff    Action0\EndOffset:fff      Action0\TargetOffset:fff   Action0\StartFOV:f Action0\EndFOV:f Action0\TransitionPop:d Action0\Loop:d Action0\EndSyncPoint:d }
+   "Action 0"    4              0              0.000000         5.000000               0                   1                    1.000000                0                    CA3DDD8F_11110001 0                  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.256637           1.256637         0                       0              0                      
+[ Action1 : 1 ]
+ { Action1\Name:s  Action1\Type:d Action1\Shot:d Action1\Offset:f Action1\Duration:f Action1\SyncPoint:d Action1\FinishShot:d Action1\DefaultLength:f Action1\Speaker:g Action1\Sample:s Action1\ForceEnd:d Action1\Positional:d }
+   "Action 1"  5              0              0.000000         5.000000               0                   1                    1.000000                ABCABCAB_CABCABC0 "I am the boss!!!"     1                  0                    
+[ Action2 : 1 ]
+ { Action2\Name:s Action2\Type:d Action2\Shot:d Action2\Offset:f Action2\Duration:f Action2\SyncPoint:d Action2\FinishShot:d Action2\DefaultLength:f Action2\CameraType:d Action2\Target:g  Action2\Relative:d Action2\StartOrient:fff    Action2\EndOrient:fff      Action2\StartOffset:fff    Action2\EndOffset:fff      Action2\TargetOffset:fff   Action2\StartFOV:f Action2\EndFOV:f Action2\TransitionPop:d Action2\Loop:d Action2\EndSyncPoint:d }
+   "Action 2"    4              1              0.000000         4.000000               1                   1                    1.000000                0                    CA3DDD8F_11110002 0                  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.256637           1.256637         0                       0              0                      
+[ Action3 : 1 ]
+ { Action3\Name:s Action3\Type:d Action3\Shot:d Action3\Offset:f Action3\Duration:f Action3\SyncPoint:d Action3\FinishShot:d Action3\DefaultLength:f Action3\Object:g  Action3\Location:g Action3\Facing:g  Action3\SetFacing:d Action3\Anim:s }
+   "Action 3"    6              1              0.000000         0.000000           1                   1                    1.000000                ABCABCAB_CABCABC0 87654321_00000003  87654321_00000004 1                   ""             
+[ Action4 : 1 ]
+ { Action4\Name:s  Action4\Type:d Action4\Shot:d Action4\Offset:f Action4\Duration:f Action4\SyncPoint:d Action4\FinishShot:d Action4\DefaultLength:f Action4\Speaker:g Action4\Sample:s Action4\ForceEnd:d Action4\Positional:d }
+   "Action 4"  5              1              0.000000         4.000000               1                   1                    1.000000                87654321_00000004 "GO AWAY!!!!"     1                  0                    
+[ Action5 : 1 ]
+ { Action5\Name:s   Action5\Type:d Action5\Shot:d Action5\Offset:f Action5\Duration:f Action5\SyncPoint:d Action5\FinishShot:d Action5\DefaultLength:f Action5\Object:g  Action5\AnimName:s Action5\StartAnimating:d Action5\Looping:d Action5\HideWhenDone:d Action5\SetToEndOnSkip:d }
+   "Action 5" 9              1              0.000000         4.000000           1                   1                    1.000000                87654321_00000004 "Run"                 1                        0                 1                      1                        
+
+[ Participants : 2 ]
+ { PGuid:g           }
+   ABCABCAB_CABCABC0 
+   87654321_00000004 
+[ Action-1 : 1 ]
+ { Action-1\Shot:d Action-1\Offset:f Action-1\Duration:f Action-1\SyncPoint:d Action-1\FinishShot:d Action-1\DefaultLength:f Action-1\FXType:d Action-1\Magnitude:f Action-1\Frequency:f Action-1\Rolling:d Action-1\Fadeout:d Action-1\Color:dddd Action-1\Target:f }
+   0               0.000000          1.000000            0                    0                     1.000000                 3                 0.15                 20.000000            0                  0                  0 0 0 255          0.000000         
+[ Action-2 : 1 ]
+ { Action-2\Shot:d Action-2\Offset:f Action-2\Duration:f Action-2\SyncPoint:d Action-2\FinishShot:d Action-2\DefaultLength:f Action-2\FXType:d Action-2\Magnitude:f Action-2\Frequency:f Action-2\Rolling:d Action-2\Fadeout:d Action-2\Color:dddd Action-2\Target:f }
+   0               0.000000          1.000000            0                    0                     1.000000                 3                 0.15                 20.000000            0                  0                  0 0 0 255          0.000000         
+
+//////////////////////////////////////////
+
+[ Cinema : 1 ]
+ { GUID:s              DoesCameraColl:d DoesCameraFade:d LightChannels:d ObjectFlags:d ScriptResource:s InitialPos:fff             Orientation:fff            LocalBoundingBox:ffffff                                  ObjSaveFlag:d ObjName:s                  Repeatable:d PopAtEnd:d Cinematic:d Time:f   Duration:f nShots:d nSyncPoints:d nActions:d nParticipants:d InitialShot:d BilboInvisible:d HasIntroTrans:d HasOutroTrans:d Skippable:d IsDeathCinema:d ForceNoWeapon:d ForceUseStick:d ForceUseSting:d Letterbox:d DisableControl:d BypassQueue:d LowPriority:d SubtitleInBox:d }
+   "CA3DDD8F_11110000" 1                1                1               432           ""               0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 -1.000000 -1.000000 -1.000000 1.000000 1.000000 1.000000 1             "Kids invite Bilbo To run" 1            0          1           0.000000 5.486312   3        4             8          2               0             0                0               0               1           0               0               0               0               1           0                0             0             0              
+[ Shot0 : 1 ]
+ { Shot0\Name:s Shot0\NextShot:d Shot0\SkipShot:d Shot0\MaxTime:f Shot0\Time:f }
+   "Shot 0"     1                1                10.000000      0.000000    
+[ Shot1 : 1 ]
+ { Shot1\Name:s Shot1\NextShot:d Shot1\SkipShot:d Shot1\MaxTime:f Shot1\Time:f }
+   "Shot 0"     2                2                10.000000      0.000000    
+[ Shot2 : 1 ]
+ { Shot2\Name:s Shot2\NextShot:d Shot2\SkipShot:d Shot2\MaxTime:f Shot2\Time:f }
+   "Shot 0"     3                3                10.000000      0.000000    
+
+[ SyncPoint0 : 1 ]
+ { SyncPoint0\Name:s SyncPoint0\Type:d SyncPoint0\Action:d SyncPoint0\Offset:f SyncPoint0\Shot:d SyncPoint0\FromEnd:d SyncPoint0\AbsoluteTimeStart:f }
+   "Shot 0, Sync 0"  0                 0                   0.000000            0                 1                    0.000000               
+[ SyncPoint1 : 1 ]
+ { SyncPoint1\Name:s SyncPoint1\Type:d SyncPoint1\Action:d SyncPoint1\Offset:f SyncPoint1\Shot:d SyncPoint1\FromEnd:d SyncPoint1\AbsoluteTimeStart:f }
+   "Shot 1, Sync 1"  1                 2                   0.000000            1                 1                    4.000000               
+[ SyncPoint2 : 1 ]
+ { SyncPoint2\Name:s SyncPoint2\Type:d SyncPoint2\Action:d SyncPoint2\Offset:f SyncPoint2\Shot:d SyncPoint2\FromEnd:d SyncPoint2\AbsoluteTimeStart:f }
+   "Shot 1, Sync 2"  1                 4                   0.000000            1                 1                    7.000000               
+[ SyncPoint3 : 1 ]
+ { SyncPoint3\Name:s SyncPoint3\Type:d SyncPoint3\Action:d SyncPoint3\Offset:f SyncPoint3\Shot:d SyncPoint3\FromEnd:d SyncPoint3\AbsoluteTimeStart:f }
+   "Shot 2, Sync 3"  1                 5                   0.000000            2                 1                    11.000000              
+
+
+[ Action0 : 1 ]
+ { Action0\Name:s Action0\Type:d Action0\Shot:d Action0\Offset:f Action0\Duration:f Action0\SyncPoint:d Action0\FinishShot:d Action0\DefaultLength:f Action0\CameraType:d Action0\Target:g  Action0\Relative:d Action0\StartOrient:fff    Action0\EndOrient:fff      Action0\StartOffset:fff    Action0\EndOffset:fff      Action0\TargetOffset:fff   Action0\StartFOV:f Action0\EndFOV:f Action0\TransitionPop:d Action0\Loop:d Action0\EndSyncPoint:d }
+   "Bilbo Cam"    4              0              0.000000         4.000000               0                   0                    0.000000                0                    CA3DDD8F_11110001 0                  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.256637           1.256637         0                       0              0                      
+[ Action1 : 1 ]
+ { Action1\Name:s  Action1\Type:d Action1\Shot:d Action1\Offset:f Action1\Duration:f Action1\SyncPoint:d Action1\FinishShot:d Action1\DefaultLength:f Action1\Speaker:g Action1\Sample:s Action1\ForceEnd:d Action1\Positional:d }
+   "Bilbo Dialog"  5              0              0.000000         4.000000               0                   1                    7.369031                ABCABCAB_CABCABC0 "Hey, kids. What are you up to?"     1                  0                    
+[ Action2 : 1 ]
+ { Action2\Name:s Action2\Type:d Action2\Shot:d Action2\Offset:f Action2\Duration:f Action2\SyncPoint:d Action2\FinishShot:d Action2\DefaultLength:f Action2\Object:g  Action2\Location:g Action2\Facing:g  Action2\SetFacing:d Action2\Anim:s }
+   "Bilbo Pop"    6              0              0.000000         0.000000           0                   1                    0.000000                ABCABCAB_CABCABC0 87654321_00000029  87654321_00000001 1                   ""             
+[ Action3 : 1 ]
+ { Action3\Name:s Action3\Type:d Action3\Shot:d Action3\Offset:f Action3\Duration:f Action3\SyncPoint:d Action3\FinishShot:d Action3\DefaultLength:f Action3\CameraType:d Action3\Target:g  Action3\Relative:d Action3\StartOrient:fff    Action3\EndOrient:fff      Action3\StartOffset:fff    Action3\EndOffset:fff      Action3\TargetOffset:fff   Action3\StartFOV:f Action3\EndFOV:f Action3\TransitionPop:d Action3\Loop:d Action3\EndSyncPoint:d }
+   "Kids Cam"    4              1              0.000000         7.000000               1                   0                    0.000000                0                    CA3DDD8F_11110002 0                  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.256637           1.256637         0                       0              0                      
+[ Action4 : 1 ]
+ { Action4\Name:s  Action4\Type:d Action4\Shot:d Action4\Offset:f Action4\Duration:f Action4\SyncPoint:d Action4\FinishShot:d Action4\DefaultLength:f Action4\Speaker:g Action4\Sample:s Action4\ForceEnd:d Action4\Positional:d }
+   "Kid Dialog"  5              1              0.000000         3.000000               1                   1                    7.369031                87654321_00000001 "We wanna play! Let's race!"     1                  0                    
+[ Action5 : 1 ]
+ { Action5\Name:s  Action5\Type:d Action5\Shot:d Action5\Offset:f Action5\Duration:f Action5\SyncPoint:d Action5\FinishShot:d Action5\DefaultLength:f Action5\Speaker:g Action5\Sample:s Action5\ForceEnd:d Action5\Positional:d }
+   "Kid Dialog"  5              1              0.000000         4.000000               2                   1                    7.369031                87654321_00000001 "Who will be the fastest and get to the downhill will win!"     1                  0                    
+[ Action6 : 1 ]
+ { Action6\Name:s Action6\Type:d Action6\Shot:d Action6\Offset:f Action6\Duration:f Action6\SyncPoint:d Action6\FinishShot:d Action6\DefaultLength:f Action6\CameraType:d Action6\Target:g  Action6\Relative:d Action6\StartOrient:fff    Action6\EndOrient:fff      Action6\StartOffset:fff    Action6\EndOffset:fff      Action6\TargetOffset:fff   Action6\StartFOV:f Action6\EndFOV:f Action6\TransitionPop:d Action6\Loop:d Action6\EndSyncPoint:d }
+   "Bilbo Cam"    4              2              0.000000         4.000000               3                   0                    0.000000                0                    CA3DDD8F_11110001 0                  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.256637           1.256637         0                       0              0                      
+[ Action7 : 1 ]
+ { Action7\Name:s  Action7\Type:d Action7\Shot:d Action7\Offset:f Action7\Duration:f Action7\SyncPoint:d Action7\FinishShot:d Action7\DefaultLength:f Action7\Speaker:g Action7\Sample:s Action7\ForceEnd:d Action7\Positional:d }
+   "Bilbo Dialog"  5              2              0.000000         4.000000               3                   1                    7.369031                ABCABCAB_CABCABC0 "Just don't get mad if I get there first"     1                  0                    
+
+[ Participants : 2 ]
+ { PGuid:g           }
+   ABCABCAB_CABCABC0 
+   CA3DD48F_5BA30400 
+[ Action-1 : 1 ]
+ { Action-1\Shot:d Action-1\Offset:f Action-1\Duration:f Action-1\SyncPoint:d Action-1\FinishShot:d Action-1\DefaultLength:f Action-1\FXType:d Action-1\Magnitude:f Action-1\Frequency:f Action-1\Rolling:d Action-1\Fadeout:d Action-1\Color:dddd Action-1\Target:f }
+   0               0.000000          1.000000            0                    0                     1.000000                 3                 0.15                 20.000000            0                  0                  0 0 0 255          0.000000         
+[ Action-2 : 1 ]
+ { Action-2\Shot:d Action-2\Offset:f Action-2\Duration:f Action-2\SyncPoint:d Action-2\FinishShot:d Action-2\DefaultLength:f Action-2\FXType:d Action-2\Magnitude:f Action-2\Frequency:f Action-2\Rolling:d Action-2\Fadeout:d Action-2\Color:dddd Action-2\Target:f }
+   0               0.000000          1.000000            0                    0                     1.000000                 3                 0.15                 20.000000            0                  0                  0 0 0 255          0.000000         
+
+[ CameraPath : 1 ]
+ { GUID:s              Pos:fff                    Orient:fff                 Scale:fff                  BBox:ffffff                    Loops:d Range:fff                  Min:fff                               PlaySpeed:f CamPosOffset:fff                      CamRotOffset:fff           LookatGuid:g      LookatOffset:fff           FromCenter:d Interpolate:d Lookspring:d }
+   "CA3DDD8F_11110001" 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1       0.000000 0.000000 0.000000 1205.318 -285.000000 -354.215     1.000000    0.000000 0.000000 0.000000            0.000000 0.000000 0.000000 ABCABCAB_CABCABC0 0.000000 0.000000 0.000000 0            1             0           
+[ Keyframes : 1 ]
+ { PosX:d PosY:d PosZ:d OriX:d OriY:d OriZ:d OriW:d }
+   0      0      0      0      0      0      0     
+
+[ CameraPath : 1 ]
+ { GUID:s              Pos:fff                    Orient:fff                 Scale:fff                  BBox:ffffff                    Loops:d Range:fff                  Min:fff                               PlaySpeed:f CamPosOffset:fff                      CamRotOffset:fff           LookatGuid:g      LookatOffset:fff           FromCenter:d Interpolate:d Lookspring:d }
+   "CA3DDD8F_11110002" 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1       0.000000 0.000000 0.000000 1414.335 -285.000000 341.98       1.000000    0.000000 0.000000 0.000000            0.000000 0.000000 0.000000 87654321_00000001 0.000000 0.000000 0.000000 0            1             0           
+[ Keyframes : 1 ]
+ { PosX:d PosY:d PosZ:d OriX:d OriY:d OriZ:d OriW:d }
+   0      0      0      0      0      0      0     
+
+//////////////////////////////////////////
+
+[ Cinema : 1 ]
+ { GUID:s              DoesCameraColl:d DoesCameraFade:d LightChannels:d ObjectFlags:d ScriptResource:s InitialPos:fff             Orientation:fff            LocalBoundingBox:ffffff                                  ObjSaveFlag:d ObjName:s                  Repeatable:d PopAtEnd:d Cinematic:d Time:f   Duration:f nShots:d nSyncPoints:d nActions:d nParticipants:d InitialShot:d BilboInvisible:d HasIntroTrans:d HasOutroTrans:d Skippable:d IsDeathCinema:d ForceNoWeapon:d ForceUseStick:d ForceUseSting:d Letterbox:d DisableControl:d BypassQueue:d LowPriority:d SubtitleInBox:d }
+   "CA3DDD8F_11110007" 1                1                1               432           ""               0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 -1.000000 -1.000000 -1.000000 1.000000 1.000000 1.000000 1             "Bilbo won a race"         1            0          1           0.000000 5.486312   2        2             5          2               0             0                0               0               1           0               0               0               0               1           0                0             0             0              
+[ Shot0 : 1 ]
+ { Shot0\Name:s Shot0\NextShot:d Shot0\SkipShot:d Shot0\MaxTime:f Shot0\Time:f }
+   "Shot 0"     1                1                10.000000      0.000000    
+[ Shot1 : 1 ]
+ { Shot1\Name:s Shot1\NextShot:d Shot1\SkipShot:d Shot1\MaxTime:f Shot1\Time:f }
+   "Shot 0"     2                2                10.000000      0.000000    
+
+[ SyncPoint0 : 1 ]
+ { SyncPoint0\Name:s SyncPoint0\Type:d SyncPoint0\Action:d SyncPoint0\Offset:f SyncPoint0\Shot:d SyncPoint0\FromEnd:d SyncPoint0\AbsoluteTimeStart:f }
+   "Shot 0, Sync 0"  0                 0                   0.000000            0                 1                    0.000000               
+[ SyncPoint1 : 1 ]
+ { SyncPoint1\Name:s SyncPoint1\Type:d SyncPoint1\Action:d SyncPoint1\Offset:f SyncPoint1\Shot:d SyncPoint1\FromEnd:d SyncPoint1\AbsoluteTimeStart:f }
+   "Shot 1, Sync 1"  1                 2                   0.000000            1                 1                    4.000000               
+
+
+[ Action0 : 1 ]
+ { Action0\Name:s Action0\Type:d Action0\Shot:d Action0\Offset:f Action0\Duration:f Action0\SyncPoint:d Action0\FinishShot:d Action0\DefaultLength:f Action0\CameraType:d Action0\Target:g  Action0\Relative:d Action0\StartOrient:fff    Action0\EndOrient:fff      Action0\StartOffset:fff    Action0\EndOffset:fff      Action0\TargetOffset:fff   Action0\StartFOV:f Action0\EndFOV:f Action0\TransitionPop:d Action0\Loop:d Action0\EndSyncPoint:d }
+   "Bilbo Cam"    4              0              0.000000         4.000000               0                   0                    0.000000                0                    CA3DDD8F_11110003 0                  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.256637           1.256637         0                       0              0                      
+[ Action1 : 1 ]
+ { Action1\Name:s  Action1\Type:d Action1\Shot:d Action1\Offset:f Action1\Duration:f Action1\SyncPoint:d Action1\FinishShot:d Action1\DefaultLength:f Action1\Speaker:g Action1\Sample:s Action1\ForceEnd:d Action1\Positional:d }
+   "Bilbo Dialog"  5              0              0.000000         4.000000               0                   1                    7.369031                ABCABCAB_CABCABC0 "See, that's why they call me the fastest hobbit in town!"     1                  0                    
+[ Action2 : 1 ]
+ { Action2\Name:s Action2\Type:d Action2\Shot:d Action2\Offset:f Action2\Duration:f Action2\SyncPoint:d Action2\FinishShot:d Action2\DefaultLength:f Action2\Object:g  Action2\Location:g Action2\Facing:g  Action2\SetFacing:d Action2\Anim:s }
+   "Bilbo Pop"    6              0              0.000000         0.000000           0                   1                    0.000000                ABCABCAB_CABCABC0 87654321_0000002A  87654321_0000002B 1                   ""             
+[ Action3 : 1 ]
+ { Action3\Name:s Action3\Type:d Action3\Shot:d Action3\Offset:f Action3\Duration:f Action3\SyncPoint:d Action3\FinishShot:d Action3\DefaultLength:f Action3\CameraType:d Action3\Target:g  Action3\Relative:d Action3\StartOrient:fff    Action3\EndOrient:fff      Action3\StartOffset:fff    Action3\EndOffset:fff      Action3\TargetOffset:fff   Action3\StartFOV:f Action3\EndFOV:f Action3\TransitionPop:d Action3\Loop:d Action3\EndSyncPoint:d }
+   "Kids Cam"    4              1              0.000000         3.000000               1                   0                    0.000000                0                    CA3DDD8F_11110004 0                  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.256637           1.256637         0                       0              0                      
+[ Action4 : 1 ]
+ { Action4\Name:s  Action4\Type:d Action4\Shot:d Action4\Offset:f Action4\Duration:f Action4\SyncPoint:d Action4\FinishShot:d Action4\DefaultLength:f Action4\Speaker:g Action4\Sample:s Action4\ForceEnd:d Action4\Positional:d }
+   "Kid Dialog"  5              1              0.000000         3.000000               1                   1                    7.369031                87654321_00000001 "Well, I couldn't keep up with you."     1                  0                    
+
+[ Participants : 2 ]
+ { PGuid:g           }
+   ABCABCAB_CABCABC0 
+   87654321_00000001 
+[ Action-1 : 1 ]
+ { Action-1\Shot:d Action-1\Offset:f Action-1\Duration:f Action-1\SyncPoint:d Action-1\FinishShot:d Action-1\DefaultLength:f Action-1\FXType:d Action-1\Magnitude:f Action-1\Frequency:f Action-1\Rolling:d Action-1\Fadeout:d Action-1\Color:dddd Action-1\Target:f }
+   0               0.000000          1.000000            0                    0                     1.000000                 3                 0.15                 20.000000            0                  0                  0 0 0 255          0.000000         
+[ Action-2 : 1 ]
+ { Action-2\Shot:d Action-2\Offset:f Action-2\Duration:f Action-2\SyncPoint:d Action-2\FinishShot:d Action-2\DefaultLength:f Action-2\FXType:d Action-2\Magnitude:f Action-2\Frequency:f Action-2\Rolling:d Action-2\Fadeout:d Action-2\Color:dddd Action-2\Target:f }
+   0               0.000000          1.000000            0                    0                     1.000000                 3                 0.15                 20.000000            0                  0                  0 0 0 255          0.000000         
+
+[ CameraPath : 1 ]
+ { GUID:s              Pos:fff                    Orient:fff                 Scale:fff                  BBox:ffffff                    Loops:d Range:fff                  Min:fff                               PlaySpeed:f CamPosOffset:fff                      CamRotOffset:fff           LookatGuid:g      LookatOffset:fff           FromCenter:d Interpolate:d Lookspring:d }
+   "CA3DDD8F_11110003" 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1       0.000000 0.000000 0.000000 910.398 -1627.50 -3240.344        1.000000    0.000000 0.000000 0.000000            0.000000 0.000000 0.000000 ABCABCAB_CABCABC0 0.000000 0.000000 0.000000 0            1             0           
+[ Keyframes : 1 ]
+ { PosX:d PosY:d PosZ:d OriX:d OriY:d OriZ:d OriW:d }
+   0      0      0      0      0      0      0     
+
+[ CameraPath : 1 ]
+ { GUID:s              Pos:fff                    Orient:fff                 Scale:fff                  BBox:ffffff                    Loops:d Range:fff                  Min:fff                               PlaySpeed:f CamPosOffset:fff                      CamRotOffset:fff           LookatGuid:g      LookatOffset:fff           FromCenter:d Interpolate:d Lookspring:d }
+   "CA3DDD8F_11110004" 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1       0.000000 0.000000 0.000000 589.152 -1622.50 -3738.118        1.000000    0.000000 0.000000 0.000000            0.000000 0.000000 0.000000 87654321_0000002B 0.000000 0.000000 0.000000 0            1             0           
+[ Keyframes : 1 ]
+ { PosX:d PosY:d PosZ:d OriX:d OriY:d OriZ:d OriW:d }
+   0      0      0      0      0      0      0     
+
+//////////////////////////////////////////
+
+[ Cinema : 1 ]
+ { GUID:s              DoesCameraColl:d DoesCameraFade:d LightChannels:d ObjectFlags:d ScriptResource:s InitialPos:fff             Orientation:fff            LocalBoundingBox:ffffff                                  ObjSaveFlag:d ObjName:s                  Repeatable:d PopAtEnd:d Cinematic:d Time:f   Duration:f nShots:d nSyncPoints:d nActions:d nParticipants:d InitialShot:d BilboInvisible:d HasIntroTrans:d HasOutroTrans:d Skippable:d IsDeathCinema:d ForceNoWeapon:d ForceUseStick:d ForceUseSting:d Letterbox:d DisableControl:d BypassQueue:d LowPriority:d SubtitleInBox:d }
+   "CA3DDD8F_11110017" 1                1                1               432           ""               0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 -1.000000 -1.000000 -1.000000 1.000000 1.000000 1.000000 1             "Bilbo lost a race"        1            0          1           0.000000 5.486312   1        2             5          2               0             0                0               0               1           0               0               0               0               1           0                0             0             0              
+[ Shot0 : 1 ]
+ { Shot0\Name:s Shot0\NextShot:d Shot0\SkipShot:d Shot0\MaxTime:f Shot0\Time:f }
+   "Shot 0"     1                1                10.000000      0.000000    
+
+[ SyncPoint0 : 1 ]
+ { SyncPoint0\Name:s SyncPoint0\Type:d SyncPoint0\Action:d SyncPoint0\Offset:f SyncPoint0\Shot:d SyncPoint0\FromEnd:d SyncPoint0\AbsoluteTimeStart:f }
+   "Shot 0, Sync 0"  0                 0                   0.000000            0                 1                    0.000000               
+[ SyncPoint1 : 1 ]
+ { SyncPoint1\Name:s SyncPoint1\Type:d SyncPoint1\Action:d SyncPoint1\Offset:f SyncPoint1\Shot:d SyncPoint1\FromEnd:d SyncPoint1\AbsoluteTimeStart:f }
+   "Shot 0, Sync 1"  1                 0                   0.000000            0                 1                    4.000000               
+
+
+[ Action0 : 1 ]
+ { Action0\Name:s Action0\Type:d Action0\Shot:d Action0\Offset:f Action0\Duration:f Action0\SyncPoint:d Action0\FinishShot:d Action0\DefaultLength:f Action0\FXType:d Action0\Magnitude:f Action0\Frequency:f Action0\Rolling:d Action0\Fadeout:d Action0\Color:dddd Action0\Target:f }
+   "Fade out"     8              0              0.000000         1.000000           0                   0                    1.000000                1                0.15            20.000000           0                 1                 0 0 0 255          0.000000         
+[ Action1 : 1 ]
+ { Action1\Name:s Action1\Type:d Action1\Shot:d Action1\Offset:f Action1\Duration:f Action1\SyncPoint:d Action1\FinishShot:d Action1\DefaultLength:f Action1\CameraType:d Action1\Target:g  Action1\Relative:d Action1\StartOrient:fff    Action1\EndOrient:fff      Action1\StartOffset:fff    Action1\EndOffset:fff      Action1\TargetOffset:fff   Action1\StartFOV:f Action1\EndFOV:f Action1\TransitionPop:d Action1\Loop:d Action1\EndSyncPoint:d }
+   "Kids Cam"    4              0              1.80         4.000000               1                   0                    0.000000                0                    CA3DDD8F_11110002 0                  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.256637           1.256637         0                       0              0                      
+[ Action2 : 1 ]
+ { Action2\Name:s Action2\Type:d Action2\Shot:d Action2\Offset:f Action2\Duration:f Action2\SyncPoint:d Action2\FinishShot:d Action2\DefaultLength:f Action2\Object:g  Action2\Location:g Action2\Facing:g  Action2\SetFacing:d Action2\Anim:s }
+   "Bilbo Pop"    6              0              0.000000         0.000000           1                   1                    0.000000                ABCABCAB_CABCABC0 87654321_00000029  87654321_0000002B 1                   ""             
+[ Action3 : 1 ]
+ { Action3\Name:s  Action3\Type:d Action3\Shot:d Action3\Offset:f Action3\Duration:f Action3\SyncPoint:d Action3\FinishShot:d Action3\DefaultLength:f Action3\Speaker:g Action3\Sample:s Action3\ForceEnd:d Action3\Positional:d }
+   "Kid Dialog"  5              0              0.000000         3.000000               1                   1                    7.369031                87654321_00000001 "Bilbo is a loser, bilbo is a loser!"     1                  0                    
+[ Action4 : 1 ]
+ { Action4\Name:s Action4\Type:d Action4\Shot:d Action4\Offset:f Action4\Duration:f Action4\SyncPoint:d Action4\FinishShot:d Action4\DefaultLength:f Action4\FXType:d Action4\Magnitude:f Action4\Frequency:f Action4\Rolling:d Action4\Fadeout:d Action4\Color:dddd Action4\Target:f }
+   "Fade In"     8              0              5.80         1.000000           1                   0                    1.000000                1                0.15            20.000000           0                 0                 0 0 0 255          0.000000         
+
+[ Participants : 2 ]
+ { PGuid:g           }
+   ABCABCAB_CABCABC0 
+   CA3DDD8F_11110002 
+[ Action-1 : 1 ]
+ { Action-1\Shot:d Action-1\Offset:f Action-1\Duration:f Action-1\SyncPoint:d Action-1\FinishShot:d Action-1\DefaultLength:f Action-1\FXType:d Action-1\Magnitude:f Action-1\Frequency:f Action-1\Rolling:d Action-1\Fadeout:d Action-1\Color:dddd Action-1\Target:f }
+   0               0.000000          1.000000            0                    0                     1.000000                 3                 0.15                 20.000000            0                  0                  0 0 0 255          0.000000         
+[ Action-2 : 1 ]
+ { Action-2\Shot:d Action-2\Offset:f Action-2\Duration:f Action-2\SyncPoint:d Action-2\FinishShot:d Action-2\DefaultLength:f Action-2\FXType:d Action-2\Magnitude:f Action-2\Frequency:f Action-2\Rolling:d Action-2\Fadeout:d Action-2\Color:dddd Action-2\Target:f }
+   0               0.000000          1.000000            0                    0                     1.000000                 3                 0.15                 20.000000            0                  0                  0 0 0 255          0.000000         
+
+[ CameraPath : 1 ]
+ { GUID:s              Pos:fff                    Orient:fff                 Scale:fff                  BBox:ffffff                    Loops:d Range:fff                  Min:fff                               PlaySpeed:f CamPosOffset:fff                      CamRotOffset:fff           LookatGuid:g      LookatOffset:fff           FromCenter:d Interpolate:d Lookspring:d }
+   "CA3DDD8F_11110013" 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1       0.000000 0.000000 0.000000 910.398 -1627.50 -3240.344        1.000000    0.000000 0.000000 0.000000            0.000000 0.000000 0.000000 ABCABCAB_CABCABC0 0.000000 0.000000 0.000000 0            1             0           
+[ Keyframes : 1 ]
+ { PosX:d PosY:d PosZ:d OriX:d OriY:d OriZ:d OriW:d }
+   0      0      0      0      0      0      0     
+
+[ CameraPath : 1 ]
+ { GUID:s              Pos:fff                    Orient:fff                 Scale:fff                  BBox:ffffff                    Loops:d Range:fff                  Min:fff                               PlaySpeed:f CamPosOffset:fff                      CamRotOffset:fff           LookatGuid:g      LookatOffset:fff           FromCenter:d Interpolate:d Lookspring:d }
+   "CA3DDD8F_11110014" 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1       0.000000 0.000000 0.000000 589.152 -1622.50 -3738.118        1.000000    0.000000 0.000000 0.000000            0.000000 0.000000 0.000000 87654321_0000002B 0.000000 0.000000 0.000000 0            1             0           
+[ Keyframes : 1 ]
+ { PosX:d PosY:d PosZ:d OriX:d OriY:d OriZ:d OriW:d }
+   0      0      0      0      0      0      0     

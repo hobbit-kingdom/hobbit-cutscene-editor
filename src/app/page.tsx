@@ -20,6 +20,21 @@ import {
 } from '@/types/cinema';
 import { exportCinema, exportMultipleCinemas } from '@/utils/exporter';
 import { parseCinemaFile } from '@/utils/parser';
+import {
+  POS_MAX,
+  IDENTITY_QUAT,
+  Vec3,
+  OrientMode,
+  keyframeToWorld,
+  dequantizeQuat,
+  deriveBoxFromPoints,
+  genLine,
+  genArc,
+  genOrbit,
+  genFigure8,
+  genBezier,
+  buildKeyframes,
+} from '@/utils/quantize';
 import { 
   Plus, 
   Trash2, 
@@ -245,6 +260,13 @@ export default function CutsceneEditor() {
     setCinema(prev => ({
       ...prev,
       cameraPaths: prev.cameraPaths.map(cp => cp.id === id ? { ...cp, [field]: value } : cp)
+    }));
+  };
+
+  const updateCameraPathBatch = (id: string, patch: Partial<CameraPath>) => {
+    setCinema(prev => ({
+      ...prev,
+      cameraPaths: prev.cameraPaths.map(cp => cp.id === id ? { ...cp, ...patch } : cp)
     }));
   };
 
@@ -690,6 +712,7 @@ export default function CutsceneEditor() {
                     isExpanded={expandedItems.has(cp.id)}
                     onToggle={() => toggleExpanded(cp.id)}
                     onUpdate={(field, value) => updateCameraPath(cp.id, field, value)}
+                    onUpdatePath={(patch) => updateCameraPathBatch(cp.id, patch)}
                     onDelete={() => deleteCameraPath(cp.id)}
                   />
                 ))}
@@ -1396,12 +1419,14 @@ function CameraPathItem({
   isExpanded,
   onToggle,
   onUpdate,
+  onUpdatePath,
   onDelete
 }: {
   cameraPath: CameraPath;
   isExpanded: boolean;
   onToggle: () => void;
   onUpdate: (field: string, value: unknown) => void;
+  onUpdatePath: (patch: Partial<CameraPath>) => void;
   onDelete: () => void;
 }) {
   return (
@@ -1434,7 +1459,10 @@ function CameraPathItem({
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Lookat GUID</label>
+              <label className="block text-sm text-gray-400 mb-1">
+                Lookat GUID
+                <FieldHelp text="00000000_00000000 = no target (orientation comes purely from keyframes). Set to an engine object GUID to have the engine aim the camera at runtime." />
+              </label>
               <input
                 type="text"
                 value={cameraPath.lookatGuid}
@@ -1520,11 +1548,12 @@ function CameraPathItem({
           </div>
           
           {/* Keyframe Editor */}
-          <KeyframeEditor 
+          <KeyframeEditor
             keyframes={cameraPath.keyframes}
             min={cameraPath.min}
             range={cameraPath.range}
             onUpdate={(keyframes) => onUpdate('keyframes', keyframes)}
+            onUpdatePath={onUpdatePath}
           />
         </div>
       )}
@@ -1537,195 +1566,169 @@ function KeyframeEditor({
   keyframes,
   min,
   range,
-  onUpdate
+  onUpdate,
+  onUpdatePath
 }: {
   keyframes: Keyframe[];
   min: [number, number, number];
   range: [number, number, number];
   onUpdate: (keyframes: Keyframe[]) => void;
+  onUpdatePath: (patch: Partial<CameraPath>) => void;
 }) {
   const [curvePoints, setCurvePoints] = useState(36);
   const [showRaw, setShowRaw] = useState(false);
-  // Control points in world coordinates (within min to min+range)
-  const [controlPoints, setControlPoints] = useState<Array<{x: number, y: number, z: number}>>(() => [
-    { x: min[0], y: min[1], z: min[2] },
-    { x: min[0] + range[0] * 0.5, y: min[1] + range[1] * 0.5, z: min[2] + range[2] * 0.5 },
-    { x: min[0] + range[0], y: min[1] + range[1], z: min[2] + range[2] }
-  ]);
-  const [showControlPoints, setShowControlPoints] = useState(false);
-  
-  // Convert keyframe value (-32766 to 32766) to normalized (-1 to 1)
-  const toNormalized = (val: number) => val / 32766;
-  
-  // Convert normalized (-1 to 1) to keyframe value
-  const toKeyframeVal = (val: number) => Math.round(val * 32766);
-  
-  // Bezier curve calculation - de Casteljau's algorithm
-  const bezierPoint = (t: number, points: Array<{x: number, y: number, z: number}>): {x: number, y: number, z: number} => {
-    if (points.length === 1) return points[0];
-    const newPoints: Array<{x: number, y: number, z: number}> = [];
-    for (let i = 0; i < points.length - 1; i++) {
-      newPoints.push({
-        x: points[i].x + (points[i + 1].x - points[i].x) * t,
-        y: points[i].y + (points[i + 1].y - points[i].y) * t,
-        z: points[i].z + (points[i + 1].z - points[i].z) * t,
-      });
+
+  // Orientation mode for generated paths.
+  const [orientMode, setOrientMode] = useState<OrientMode>('constant');
+  const [lookTarget, setLookTarget] = useState<Vec3>({ x: 0, y: 0, z: 0 });
+
+  // Preset parameters (world coordinates).
+  const [lineStart, setLineStart] = useState<Vec3>({ x: 0, y: 0, z: 0 });
+  const [lineEnd, setLineEnd] = useState<Vec3>({ x: 100, y: 0, z: 0 });
+  const [orbitCenter, setOrbitCenter] = useState<Vec3>({ x: 0, y: 0, z: 0 });
+  const [orbitRadius, setOrbitRadius] = useState(100);
+  const [orbitPlane, setOrbitPlane] = useState<'XZ' | 'XY' | 'YZ'>('XZ');
+
+  // Control points in free world coordinates (seeded from current bounds when available).
+  const [controlPoints, setControlPoints] = useState<Vec3[]>(() => {
+    const hasBox = range[0] || range[1] || range[2];
+    if (hasBox) {
+      return [
+        { x: min[0], y: min[1], z: min[2] },
+        { x: min[0] + range[0] * 0.5, y: min[1] + range[1] * 0.5, z: min[2] + range[2] * 0.5 },
+        { x: min[0] + range[0], y: min[1] + range[1], z: min[2] + range[2] }
+      ];
     }
-    return bezierPoint(t, newPoints);
+    return [
+      { x: -100, y: 0, z: -100 },
+      { x: 0, y: 50, z: 0 },
+      { x: 100, y: 0, z: 100 }
+    ];
+  });
+  const [showControlPoints, setShowControlPoints] = useState(false);
+
+  // Generate keyframes from a set of WORLD points: derive Min/Range/BBox from those
+  // points, quantize positions against the derived box, build orientation per mode,
+  // and push keyframes + min + range + bBox atomically.
+  const commitFromWorld = (worldPoints: Vec3[]) => {
+    if (worldPoints.length === 0) return;
+    const { min: m, range: r, bBox } = deriveBoxFromPoints(worldPoints);
+    const newKeyframes = buildKeyframes(worldPoints, {
+      mode: orientMode,
+      min: m,
+      range: r,
+      lookTarget: orientMode === 'lookAt' ? lookTarget : undefined,
+    });
+    onUpdatePath({ keyframes: newKeyframes, min: m, range: r, bBox });
   };
-  
-  // Convert world position to keyframe value
-  const worldToKeyframe = (worldVal: number, minVal: number, rangeVal: number) => {
-    if (rangeVal === 0) return 0;
-    // Normalize to 0-1, then to -1 to 1, then to keyframe
-    const normalized = (worldVal - minVal) / rangeVal; // 0 to 1
-    return toKeyframeVal(normalized * 2 - 1); // -1 to 1 -> keyframe
-  };
-  
-  // Generate keyframes from Bezier control points
+
+  // Generate keyframes from Bezier control points (free world space).
   const generateFromControlPoints = () => {
     if (controlPoints.length < 2) return;
-    const newKeyframes: Keyframe[] = [];
-    for (let i = 0; i < curvePoints; i++) {
-      const t = i / (curvePoints - 1);
-      const pos = bezierPoint(t, controlPoints);
-      // Convert world coordinates to keyframe values
-      newKeyframes.push({
-        posX: worldToKeyframe(pos.x, min[0], range[0]),
-        posY: worldToKeyframe(pos.y, min[1], range[1]),
-        posZ: worldToKeyframe(pos.z, min[2], range[2]),
-        oriX: 0,
-        oriY: 0,
-        oriZ: 0,
-        oriW: 0,
-      });
-    }
-    onUpdate(newKeyframes);
+    commitFromWorld(genBezier(controlPoints, curvePoints));
   };
-  
+
   const addControlPoint = () => {
     const last = controlPoints[controlPoints.length - 1];
-    const first = controlPoints[0];
-    // Add a point between the last point and the end of the range
-    setControlPoints([...controlPoints, { 
-      x: last.x + (min[0] + range[0] - last.x) * 0.3,
-      y: last.y + (min[1] + range[1] - last.y) * 0.3,
-      z: last.z + (min[2] + range[2] - last.z) * 0.3
-    }]);
+    setControlPoints([...controlPoints, { x: last.x + 50, y: last.y, z: last.z + 50 }]);
   };
-  
+
   const removeControlPoint = (index: number) => {
     if (controlPoints.length > 2) {
       setControlPoints(controlPoints.filter((_, i) => i !== index));
     }
   };
-  
+
   const updateControlPoint = (index: number, field: 'x' | 'y' | 'z', value: number) => {
     const newPoints = [...controlPoints];
-    // Clamp to min/range boundaries
-    const fieldIndex = field === 'x' ? 0 : field === 'y' ? 1 : 2;
-    const clampedValue = Math.max(min[fieldIndex], Math.min(min[fieldIndex] + range[fieldIndex], value));
-    newPoints[index] = { ...newPoints[index], [field]: clampedValue };
+    newPoints[index] = { ...newPoints[index], [field]: value };
     setControlPoints(newPoints);
   };
-  
-  // Reset control points when min/range changes
+
+  // Reset control points to a default centered box (free world space).
   const resetControlPoints = () => {
-    setControlPoints([
-      { x: min[0], y: min[1], z: min[2] },
-      { x: min[0] + range[0] * 0.5, y: min[1] + range[1] * 0.5, z: min[2] + range[2] * 0.5 },
-      { x: min[0] + range[0], y: min[1] + range[1], z: min[2] + range[2] }
-    ]);
+    const hasBox = range[0] || range[1] || range[2];
+    if (hasBox) {
+      setControlPoints([
+        { x: min[0], y: min[1], z: min[2] },
+        { x: min[0] + range[0] * 0.5, y: min[1] + range[1] * 0.5, z: min[2] + range[2] * 0.5 },
+        { x: min[0] + range[0], y: min[1] + range[1], z: min[2] + range[2] }
+      ]);
+    } else {
+      setControlPoints([
+        { x: -100, y: 0, z: -100 },
+        { x: 0, y: 50, z: 0 },
+        { x: 100, y: 0, z: 100 }
+      ]);
+    }
   };
-  
-  // Calculate world position from keyframe
-  const toWorldPos = (kf: Keyframe) => ({
-    x: toNormalized(Number(kf.posX) || 0) * range[0] + min[0],
-    y: toNormalized(Number(kf.posY) || 0) * range[1] + min[1],
-    z: toNormalized(Number(kf.posZ) || 0) * range[2] + min[2],
-  });
-  
+
+  // Calculate world position from keyframe (unsigned, divisor 32767).
+  const toWorldPos = (kf: Keyframe) => keyframeToWorld(kf, min, range);
+
   const updateKeyframe = (index: number, field: keyof Keyframe, value: number) => {
     const newKeyframes = [...keyframes];
-    newKeyframes[index] = { ...newKeyframes[index], [field]: value };
+    // Clamp position fields to the unsigned range; leave orientation as raw signed ints.
+    const v = (field === 'posX' || field === 'posY' || field === 'posZ')
+      ? Math.max(0, Math.min(POS_MAX, value))
+      : value;
+    newKeyframes[index] = { ...newKeyframes[index], [field]: v };
     onUpdate(newKeyframes);
   };
-  
+
   const addKeyframe = () => {
     const lastKf = keyframes[keyframes.length - 1];
+    const oriValid = lastKf && (Math.abs(lastKf.oriX) + Math.abs(lastKf.oriY) + Math.abs(lastKf.oriZ) + Math.abs(lastKf.oriW) > 0);
+    const ori = oriValid
+      ? { oriX: lastKf.oriX, oriY: lastKf.oriY, oriZ: lastKf.oriZ, oriW: lastKf.oriW }
+      : IDENTITY_QUAT;
     const newKf: Keyframe = {
       posX: Number(lastKf?.posX) || 0,
-      posY: (Number(lastKf?.posY) || 0) + 500,
+      posY: Math.min(POS_MAX, (Number(lastKf?.posY) || 0) + 500),
       posZ: Number(lastKf?.posZ) || 0,
-      oriX: Number(lastKf?.oriX) || 0,
-      oriY: Number(lastKf?.oriY) || 0,
-      oriZ: Number(lastKf?.oriZ) || 0,
-      oriW: Number(lastKf?.oriW) || 0,
+      ...ori,
     };
     onUpdate([...keyframes, newKf]);
   };
-  
+
   const removeKeyframe = (index: number) => {
     if (keyframes.length > 1) {
       onUpdate(keyframes.filter((_, i) => i !== index));
     }
   };
-  
-  // Generate circle path
+
+  // Generate orbit/circle path (world space).
   const generateCircle = () => {
-    const newKeyframes: Keyframe[] = [];
-    for (let i = 0; i < curvePoints; i++) {
-      const t = i / curvePoints;
-      const angle = t * Math.PI * 2;
-      newKeyframes.push({
-        posX: toKeyframeVal(Math.cos(angle)),
-        posY: toKeyframeVal(t * 2 - 1), // Progress from -1 to 1 over the circle
-        posZ: toKeyframeVal(Math.sin(angle) * 0.5 + 0.5), // Offset to keep positive
-        oriX: 0,
-        oriY: 0,
-        oriZ: 0,
-        oriW: 0,
-      });
-    }
-    onUpdate(newKeyframes);
+    commitFromWorld(genOrbit(orbitCenter, orbitRadius, curvePoints, orbitPlane));
   };
-  
-  // Generate linear path (A to B)
+
+  // Generate arc path (world space, default 90 deg sweep).
+  const generateArc = () => {
+    commitFromWorld(genArc(orbitCenter, orbitRadius, curvePoints, orbitPlane));
+  };
+
+  // Generate straight line path A -> B (world space).
   const generateLine = () => {
-    const newKeyframes: Keyframe[] = [];
-    for (let i = 0; i < curvePoints; i++) {
-      const t = i / (curvePoints - 1);
-      newKeyframes.push({
-        posX: toKeyframeVal(-1 + t * 2), // -1 to 1
-        posY: toKeyframeVal(-1 + t * 2),
-        posZ: toKeyframeVal(0),
-        oriX: 0,
-        oriY: 0,
-        oriZ: 0,
-        oriW: 0,
-      });
-    }
-    onUpdate(newKeyframes);
+    commitFromWorld(genLine(lineStart, lineEnd, curvePoints));
   };
-  
-  // Generate figure-8 path
+
+  // Generate figure-8 path (world space, XZ plane around center).
   const generateFigure8 = () => {
-    const newKeyframes: Keyframe[] = [];
-    for (let i = 0; i < curvePoints; i++) {
-      const t = i / curvePoints;
-      const angle = t * Math.PI * 2;
-      newKeyframes.push({
-        posX: toKeyframeVal(Math.sin(angle)),
-        posY: toKeyframeVal(t * 2 - 1),
-        posZ: toKeyframeVal(Math.sin(angle * 2) * 0.5),
-        oriX: 0,
-        oriY: 0,
-        oriZ: 0,
-        oriW: 0,
-      });
-    }
-    onUpdate(newKeyframes);
+    commitFromWorld(genFigure8(orbitCenter, orbitRadius, curvePoints));
   };
+
+  // Small reusable Vec3 input row (plain render helper, not a component, to avoid
+  // remount/focus-loss on each keystroke re-render).
+  const renderVec3Inputs = (label: string, value: Vec3, onChange: (v: Vec3) => void) => (
+    <div>
+      <label className="block text-[10px] text-gray-500 mb-1">{label}</label>
+      <div className="flex gap-1">
+        <input type="number" step="0.1" value={value.x} onChange={e => onChange({ ...value, x: parseFloat(e.target.value) || 0 })} className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500" />
+        <input type="number" step="0.1" value={value.y} onChange={e => onChange({ ...value, y: parseFloat(e.target.value) || 0 })} className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500" />
+        <input type="number" step="0.1" value={value.z} onChange={e => onChange({ ...value, z: parseFloat(e.target.value) || 0 })} className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500" />
+      </div>
+    </div>
+  );
   
   // Get raw text representation
   const getRawText = () => {
@@ -1761,8 +1764,8 @@ function KeyframeEditor({
     <div className="mt-6 border-t border-gray-700 pt-4">
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
-          Keyframes ({keyframes.length}) - BETA
-          <FieldHelp text="Values from -32766 to 32766 map to -1 to 1. Final position = (value/32766) × range + min" />
+          Keyframes ({keyframes.length})
+          <FieldHelp text="Positions are UNSIGNED integers 0..32767. World = Min + (value/32767) x Range. Orientation is a signed-quantized UNIT quaternion (component = value/32768, order X,Y,Z,W; identity = 0,0,0,32767). Min/Range/BBox are auto-computed from your world path points." />
         </h4>
         <div className="flex gap-2">
           <button
@@ -1793,18 +1796,65 @@ function KeyframeEditor({
           <span className="text-xs text-gray-500">keyframes</span>
         </div>
         
+        {/* Orientation Mode */}
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-xs text-gray-400">Orientation:</span>
+          <select
+            value={orientMode}
+            onChange={e => setOrientMode(e.target.value as OrientMode)}
+            className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500"
+          >
+            <option value="constant">Constant (identity)</option>
+            <option value="lookAt">Look at point</option>
+            <option value="lookAlong">Look along path</option>
+          </select>
+          <FieldHelp text="Constant: identity facing on every keyframe. Look at point: each keyframe faces the Target below (best for orbit/coverage shots). Look along path: faces the next point (fly-through dollies; wrong for trucks/strafes). All modes emit a valid unit quaternion." />
+          {orientMode === 'lookAt' && (
+            <div className="flex-1">
+              {renderVec3Inputs('Target (X, Y, Z)', lookTarget, setLookTarget)}
+            </div>
+          )}
+        </div>
+
         {/* Preset Curves */}
-        <div className="flex gap-2 mb-3">
-          <span className="text-xs text-gray-400 self-center">Presets:</span>
-          <button onClick={generateCircle} className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 rounded transition">
-            Circle
-          </button>
-          <button onClick={generateLine} className="px-3 py-1.5 text-xs bg-purple-600 hover:bg-purple-500 rounded transition">
-            Line
-          </button>
-          <button onClick={generateFigure8} className="px-3 py-1.5 text-xs bg-cyan-600 hover:bg-cyan-500 rounded transition">
-            Figure-8
-          </button>
+        <div className="space-y-3 mb-3">
+          {/* Line */}
+          <div className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
+            {renderVec3Inputs('Line Start (X, Y, Z)', lineStart, setLineStart)}
+            {renderVec3Inputs('Line End (X, Y, Z)', lineEnd, setLineEnd)}
+            <button onClick={generateLine} className="px-3 py-1.5 text-xs bg-purple-600 hover:bg-purple-500 rounded transition h-[30px]">
+              Line
+            </button>
+          </div>
+
+          {/* Orbit / Arc / Figure-8 share center + radius + plane */}
+          <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-end">
+            {renderVec3Inputs('Center (X, Y, Z)', orbitCenter, setOrbitCenter)}
+            <div>
+              <label className="block text-[10px] text-gray-500 mb-1">Radius / Size</label>
+              <input type="number" step="1" value={orbitRadius} onChange={e => setOrbitRadius(parseFloat(e.target.value) || 0)} className="w-20 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="block text-[10px] text-gray-500 mb-1">Plane</label>
+              <select value={orbitPlane} onChange={e => setOrbitPlane(e.target.value as 'XZ' | 'XY' | 'YZ')} className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500">
+                <option value="XZ">XZ</option>
+                <option value="XY">XY</option>
+                <option value="YZ">YZ</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={generateCircle} className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 rounded transition">
+              Orbit/Circle
+            </button>
+            <button onClick={generateArc} className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 rounded transition">
+              Arc (90°)
+            </button>
+            <button onClick={generateFigure8} className="px-3 py-1.5 text-xs bg-cyan-600 hover:bg-cyan-500 rounded transition">
+              Figure-8
+            </button>
+            <span className="text-[10px] text-gray-500 self-center">Tip: for orbits set Orientation to &quot;Look at point&quot; with Target = Center.</span>
+          </div>
         </div>
         
         {/* Bezier Control Points */}
@@ -1816,7 +1866,7 @@ function KeyframeEditor({
             >
               {showControlPoints ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
               Bezier Control Points ({controlPoints.length})
-              <FieldHelp text="Define control points in world coordinates (within min/range bounds). The curve smoothly passes through these points." />
+              <FieldHelp text="Define control points in free world coordinates. Min/Range/BBox are auto-computed from the generated curve points; control points are NOT clamped to a pre-existing box." />
             </button>
             <button
               onClick={generateFromControlPoints}
@@ -1828,10 +1878,10 @@ function KeyframeEditor({
           
           {showControlPoints && (
             <div className="mt-2 space-y-2">
-              {/* Show boundaries */}
+              {/* Derived bounds (auto-computed on generate) */}
               <div className="text-[10px] text-gray-600 px-1 mb-2">
-                Bounds: X [{min[0].toFixed(1)} to {(min[0] + range[0]).toFixed(1)}] | 
-                Y [{min[1].toFixed(1)} to {(min[1] + range[1]).toFixed(1)}] | 
+                Derived bounds (auto): X [{min[0].toFixed(1)} to {(min[0] + range[0]).toFixed(1)}] |
+                Y [{min[1].toFixed(1)} to {(min[1] + range[1]).toFixed(1)}] |
                 Z [{min[2].toFixed(1)} to {(min[2] + range[2]).toFixed(1)}]
               </div>
               <div className="grid grid-cols-4 gap-2 text-xs text-gray-500 px-1">
@@ -1889,7 +1939,7 @@ function KeyframeEditor({
                   onClick={resetControlPoints}
                   className="text-xs text-gray-400 hover:text-gray-300"
                 >
-                  Reset to Bounds
+                  Reset Points
                 </button>
               </div>
             </div>
@@ -1923,6 +1973,13 @@ function KeyframeEditor({
           </div>
           {keyframes.map((kf, index) => {
             const worldPos = toWorldPos(kf);
+            // Dequantized unit quaternion + forward vector (rotate local +Z by q).
+            const q = dequantizeQuat(kf);
+            const fwd = {
+              x: 2 * (q.x * q.z + q.w * q.y),
+              y: 2 * (q.y * q.z - q.w * q.x),
+              z: 1 - 2 * (q.x * q.x + q.y * q.y),
+            };
             return (
               <div key={index} className="group">
                 <div className="grid grid-cols-8 gap-1 items-center">
@@ -1945,6 +2002,7 @@ function KeyframeEditor({
                 </div>
                 <div className="text-[10px] text-gray-600 px-2 mt-0.5">
                   World: ({worldPos.x.toFixed(2)}, {worldPos.y.toFixed(2)}, {worldPos.z.toFixed(2)})
+                  {' · '}Forward: ({fwd.x.toFixed(2)}, {fwd.y.toFixed(2)}, {fwd.z.toFixed(2)})
                 </div>
               </div>
             );

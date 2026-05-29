@@ -47,6 +47,9 @@ function formatInt(n: number, minWidth: number = 0): string {
   return minWidth > 0 ? result.padEnd(minWidth) : result;
 }
 
+// Defensive integer clamp for keyframe quantization ranges.
+const clampInt = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, Math.floor(v)));
+
 // :s = string (quoted)
 function formatString(s: string, minWidth: number = 0): string {
   const result = `"${s}"`;
@@ -184,10 +187,10 @@ function exportCameraPath(cp: CameraPath): string {
   lines.push(`   ${formatString(cp.guid, 18)} ${formatTripleFloat(cp.pos).padEnd(26)} ${formatTripleFloat(cp.orient).padEnd(26)} ${formatTripleFloat(cp.scale).padEnd(26)} ${formatSixFloat(cp.bBox).padEnd(30)} ${formatInt(cp.loops, 7)} ${formatTripleFloat(cp.range).padEnd(22)} ${formatTripleFloat(cp.min).padEnd(33)} ${formatFloat(cp.playSpeed, 11)} ${formatTripleFloat(cp.camPosOffset).padEnd(37)} ${formatTripleFloat(cp.camRotOffset).padEnd(26)} ${formatGuid(cp.lookatGuid, 17)} ${formatTripleFloat(cp.lookatOffset).padEnd(26)} ${formatInt(cp.fromCenter, 12)} ${formatInt(cp.interpolate, 13)} ${formatInt(cp.lookspring, 12)}`);
   
   // Keyframes
-  lines.push('[ Keyframes : 1 ]');
+  lines.push(`[ Keyframes : ${cp.keyframes.length} ]`);
   lines.push(' { PosX:d PosY:d PosZ:d OriX:d OriY:d OriZ:d OriW:d }');
   cp.keyframes.forEach(kf => {
-    lines.push(`   ${formatInt(kf.posX, 6)} ${formatInt(kf.posY, 6)} ${formatInt(kf.posZ, 6)} ${formatInt(kf.oriX, 6)} ${formatInt(kf.oriY, 6)} ${formatInt(kf.oriZ, 6)} ${formatInt(kf.oriW, 6)}`);
+    lines.push(`   ${formatInt(clampInt(kf.posX, 0, 32767), 6)} ${formatInt(clampInt(kf.posY, 0, 32767), 6)} ${formatInt(clampInt(kf.posZ, 0, 32767), 6)} ${formatInt(clampInt(kf.oriX, -32768, 32767), 6)} ${formatInt(clampInt(kf.oriY, -32768, 32767), 6)} ${formatInt(clampInt(kf.oriZ, -32768, 32767), 6)} ${formatInt(clampInt(kf.oriW, -32768, 32767), 6)}`);
   });
   
   lines.push('');

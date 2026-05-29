@@ -403,7 +403,7 @@ export function createDefaultKeyframe(): Keyframe {
     oriX: 0,
     oriY: 0,
     oriZ: 0,
-    oriW: 0,
+    oriW: 32767,
   };
 }
 
@@ -414,14 +414,14 @@ export function createDefaultCameraPath(guidSuffix: string): CameraPath {
     pos: [0, 0, 0],
     orient: [0, 0, 0],
     scale: [1, 1, 1],
-    bBox: [0, 0, 0, 0, 0, 0],
+    bBox: [0, 0, 0, 1, 1, 1],
     loops: 1,
-    range: [0, 0, 0],
+    range: [1, 1, 1],
     min: [0, 0, 0],
     playSpeed: 1.0,
     camPosOffset: [0, 0, 0],
     camRotOffset: [0, 0, 0],
-    lookatGuid: 'ABCABCAB_CABCABC0',
+    lookatGuid: '00000000_00000000',
     lookatOffset: [0, 0, 0],
     fromCenter: 0,
     interpolate: 1,
